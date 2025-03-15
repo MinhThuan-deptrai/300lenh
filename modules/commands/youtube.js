@@ -11,7 +11,7 @@ module.exports.run = async function ({ api: e, event: a, args: t }) {
     const query = t.join(" "); // Từ khóa tìm kiếm
     const numResults = 10; // Lấy 10 video đầu tiên
 
-    const apiKey = "YOUR_YOUTUBE_API_KEY"; // Thay thế bằng API key của bạn
+    const apiKey = "AIzaSyB6kOvDm7RgXWtPX02-UkA8hSRSrVpNMKw"; // Thay thế bằng API key của bạn
     try {
         // Gửi yêu cầu tìm kiếm video YouTube
         const searchResponse = await axios.get(`https://www.googleapis.com/youtube/v3/search`, {
