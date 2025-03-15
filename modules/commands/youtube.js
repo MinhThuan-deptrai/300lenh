@@ -1,3 +1,13 @@
+module.exports.config = {
+    name: "media",
+    version: "1.0.0",
+    hasPermssion: 0,
+    credits: "D-Jukie mod by chinhle",
+    description: "Phát video thông qua link YouTube hoặc từ khoá tìm kiếm",
+    commandCategory: "Người dùng",
+    usages: "[searchVideos]",
+    cooldowns: 10,
+    dependencies: {
 const axios = require('axios');  // Thư viện axios để gửi HTTP request
 
 module.exports.run = async function ({ api: e, event: a, args: t }) {
