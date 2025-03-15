@@ -2,7 +2,7 @@ module.exports.config = {
     name: "media",
     version: "1.0.0",
     hasPermssion: 0,
-    credits: "D-Jukie mod by chinhle",
+    credits: "Minh Thuannn",
     description: "Phát video thông qua link YouTube hoặc từ khoá tìm kiếm",
     commandCategory: "Người dùng",
     usages: "[searchVideos]",
