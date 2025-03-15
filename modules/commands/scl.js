@@ -34,11 +34,12 @@ module.exports.config = {
   name: 'scl',
   version: '1.0.0',
   hasPermssion: 0,
-  credits: 'DongDev',
+  credits: '',
   description: 'Tìm kiếm nhạc trên SoundCloud',
-  commandCategory: 'Tiện ích',
+  commandCategory: 'Music',
   usages: '[]',
   cooldowns: 5,
+  usePrefix: false,
   images: [],
 };
 
@@ -94,10 +95,10 @@ module.exports.run = async function ({ api, event, args }) {
     }
 
     const messages = dataaa.map((item, index) => {
-      return `\n${index + 1}. 👤 Tên: ${item.artist}\n📜 Tiêu đề: ${item.title}\n⏳ Thời lượng: ${item.timestamp} giây`;
+      return `\n${index + 1}. 👤 Tên: ${item.artist}\n💭 Tiêu đề: ${item.title}\n⏳ Thời lượng: ${item.timestamp} giây`;
     });
 
-    const listMessage = `📝 Danh sách tìm kiếm của từ khóa: ${query}\n${messages.join("\n")}\n\n📌 Reply (phản hồi) theo STT tương ứng để tải nhạc`;
+    const listMessage = `🔍 Danh sách tìm kiếm của từ khóa: ${query}\n${messages.join("\n")}\n\n📌 Reply (phản hồi) theo STT tương ứng để tải nhạc`;
 
     api.sendMessage(listMessage, event.threadID, (error, info) => {
       global.client.handleReply.push({
@@ -132,8 +133,17 @@ module.exports.handleReply = async function ({ event, api, handleReply, args }) 
 
       const chosenItem = handleReply.dataaa[choose - 1];
       const urlaudio = chosenItem.url;
+
+      // Gửi thông báo đang tải xuống bài hát và lưu lại messageID
+      const loadingMessageID = await new Promise((resolve) => {
+        api.sendMessage(`📥 Đang tải xuống bài hát: "${chosenItem.title}"...`, tid, (err, info) => {
+          if (!err) resolve(info.messageID);
+        });
+      });
+
       const dataPromise = await scl_download(urlaudio);
-setTimeout(async () => {
+
+      setTimeout(async () => {
         const bit = dataPromise.quality;
         const audioURL = dataPromise.url;
         const stream = (await axios.get(audioURL, { responseType: 'arraybuffer' })).data;
@@ -141,8 +151,17 @@ setTimeout(async () => {
 
         fs.writeFileSync(path, Buffer.from(stream, 'binary'));
 
+        // Thu hồi thông báo đang tải bài hát
+        api.unsendMessage(loadingMessageID);
+
+        // Gửi tin nhắn đầu tiên với thông tin bài hát
         api.sendMessage({
-          body: `[ SOUNDCLOUD - MP3 ]\n────────────────────\n😀 → Tên: ${chosenItem.artist}\n🐸 → Tiêu đề: ${chosenItem.title}\n🥨 → Thời lượng: ${chosenItem.timestamp} giây\n🐧 → Lượt phát: ${chosenItem.views}\n🙃 → Tải tên: ${chosenItem.release}\n📶 → Tốc độ bit: ${bit}\n────────────────────\n🚀 → Time: ${moment.tz("Asia/Ho_Chi_Minh").format("DD/MM/YYYY || HH:mm:ss")}`,
+          body: `[ SOUNDCLOUD - MP3 ]\n────────────────────\n👤 Tên: ${chosenItem.artist}\n📝 Tiêu đề: ${chosenItem.title}\n⏳ Thời lượng: ${chosenItem.timestamp} giây\n💭 Lượt phát: ${chosenItem.views}\n🗓️ Tải tên: ${chosenItem.release}\n📶 Tốc độ bit: ${bit}\n────────────────────\n⏰ Time: ${moment.tz("Asia/Ho_Chi_Minh").format("DD/MM/YYYY || HH:mm:ss")}`
+        }, tid);
+
+        // Gửi file MP3
+        api.sendMessage({
+          body: ``,
           attachment: fs.createReadStream(path)
         }, tid, () => {
           setTimeout(() => {
